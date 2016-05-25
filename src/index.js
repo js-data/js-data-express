@@ -3,6 +3,8 @@ import {
   Container
 } from 'js-data'
 
+export * from './queryParser'
+
 export function Router (store) {
   if (!(store instanceof Container)) {
     throw new Error('You must provide an instance of JSData.Container or JSData.DataStore!')

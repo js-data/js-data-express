@@ -1,23 +1,27 @@
-import * as JSDataExpress from '../'
-import {Container} from 'js-data'
-import {assert} from 'chai'
-
-const {Router, version} = JSDataExpress
+import {
+  JSDataExpress,
+  JSData,
+  assert,
+  sinon
+} from './_setup'
 
 describe('js-data-express', function () {
   it('should have correct exports', function () {
     assert.equal(typeof JSDataExpress.Router, 'function')
+    let router
 
     assert.throws(() => {
-      new Router()
+      router = new JSDataExpress.Router()
     }, Error, 'You must provide an instance of JSData.Container or JSData.DataStore!')
 
-    const store = new Container()
-    const router = new Router(store)
-    assert.equal(router instanceof Router, true)
-    assert.equal(store instanceof Container, true)
+    const store = new JSData.Container()
+    router = new JSDataExpress.Router(store)
+    assert.equal(router instanceof JSDataExpress.Router, true)
+    assert.equal(store instanceof JSData.Container, true)
     assert.strictEqual(router.store, store)
 
-    assert.equal(version, '<%= version %>')
+    assert.equal(JSDataExpress.version, '<%= version %>')
+    assert.equal(typeof JSDataExpress.parseQuery, 'function')
+    assert.equal(typeof JSDataExpress.queryParser, 'function')
   })
 })
