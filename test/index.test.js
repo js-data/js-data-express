@@ -1,8 +1,7 @@
 import {
-  JSDataExpress,
-  JSData,
   assert,
-  sinon
+  JSData,
+  JSDataExpress
 } from './_setup'
 
 describe('js-data-express', function () {
@@ -12,13 +11,11 @@ describe('js-data-express', function () {
 
     assert.throws(() => {
       router = new JSDataExpress.Router()
-    }, Error, 'You must provide an instance of JSData.Container or JSData.DataStore!')
+    }, Error, 'You must provide an instance of JSData.Container, JSData.DataStore, or JSData.Mapper!')
 
     const store = new JSData.Container()
     router = new JSDataExpress.Router(store)
     assert.equal(router instanceof JSDataExpress.Router, true)
-    assert.equal(store instanceof JSData.Container, true)
-    assert.strictEqual(router.store, store)
 
     assert.equal(JSDataExpress.version, '<%= version %>')
     assert.equal(typeof JSDataExpress.parseQuery, 'function')

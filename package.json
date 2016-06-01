@@ -11,6 +11,7 @@
   "license": "MIT",
   "main": "./src/index.js",
   "files": [
+    "dist/",
     "src/",
     "AUTHORS",
     "CONTRIBUTORS"
@@ -38,7 +39,7 @@
     "lint": "repo-tools lint \"**/*.js\"",
     "bundle": "rollup -c rollup.config.js -f cjs -o dist/js-data-express.js -m dist/js-data-express.js.map src/index.js && repo-tools write-version dist/js-data-express.js",
     "build": "npm run lint && npm run bundle",
-    "mocha": "mocha --recursive -t 20000 -R dot -r babel-core/register -r babel-polyfill",
+    "mocha": "mocha --recursive -t 30000 -R dot -r babel-core/register -r babel-polyfill",
     "cover": "nyc --require babel-core/register --require babel-polyfill --cache mocha --recursive -t 20000 -R dot && nyc report --reporter=html",
     "test": "npm run build && npm run cover",
     "release": "npm test && npm run doc && repo-tools updates && repo-tools changelog && repo-tools authors"
@@ -47,6 +48,8 @@
     "js-data": "^3.0.0-beta.6"
   },
   "devDependencies": {
+    "express": "4.13.4",
+    "js-data-adapter": "0.7.3",
     "js-data-repo-tools": "0.5.2",
     "supertest": "1.2.0"
   }

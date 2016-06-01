@@ -1,7 +1,6 @@
 import {
-  JSDataExpress,
   assert,
-  sinon
+  JSDataExpress
 } from './_setup'
 
 describe('queryParser', function () {

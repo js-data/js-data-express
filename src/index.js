@@ -1,21 +1,118 @@
 import {
   Component,
-  Container
+  Container,
+  Mapper,
+  utils
 } from 'js-data'
 
+import {queryParser} from './queryParser'
 export * from './queryParser'
+import express from 'express'
 
-export function Router (store) {
-  if (!(store instanceof Container)) {
-    throw new Error('You must provide an instance of JSData.Container or JSData.DataStore!')
+function makeHandler (handler) {
+  return function (req, res, next) {
+    return utils.resolve()
+      .then(function () {
+        return handler(req)
+      })
+      .then(function (result) {
+        res.status(200)
+        if (!utils.isUndefined(result)) {
+          res.send(result)
+        }
+        res.end()
+      })
+      .catch(next)
   }
-  this.router = {}
-  this.store = store
+}
+
+export function Router (component) {
+  if (!(component instanceof Mapper) && !(component instanceof Container)) {
+    throw new Error('You must provide an instance of JSData.Container, JSData.DataStore, or JSData.Mapper!')
+  }
+
+  const router = this.router = express.Router()
+
+  if (component instanceof Container) {
+    utils.forOwn(component._mappers, (mapper, name) => {
+      router.use(`/${mapper.endpoint || name}`, new Router(mapper).router)
+    })
+  } else if (component instanceof Mapper) {
+    router.route('/')
+      // GET /:resource
+      .get(makeHandler(function (req) {
+        return component.findAll(req.query, req.jsdataOpts)
+      }))
+      // POST /:resource
+      .post(makeHandler(function (req) {
+        if (utils.isArray(req.body)) {
+          return component.createMany(req.body, req.jsdataOpts)
+        }
+        return component.create(req.body, req.jsdataOpts)
+      }))
+      // PUT /:resource
+      .put(makeHandler(function (req) {
+        if (utils.isArray(req.body)) {
+          return component.updateMany(req.body, req.jsdataOpts)
+        }
+        return component.updateAll(req.body, req.query, req.jsdataOpts)
+      }))
+      // DELETE /:resource
+      .delete(makeHandler(function (req) {
+        return component.destroyAll(req.query, req.jsdataOpts)
+      }))
+
+    router.route('/:id')
+      // GET /:resource/:id
+      .get(makeHandler(function (req) {
+        return component.find(req.params.id, req.jsdataOpts)
+      }))
+      // PUT /:resource/:id
+      .put(makeHandler(function (req) {
+        return component.update(req.params.id, req.body, req.jsdataOpts)
+      }))
+      // DELETE /:resource/:id
+      .delete(makeHandler(function (req) {
+        return component.destroy(req.params.id, req.jsdataOpts)
+      }))
+  }
 }
 
 Component.extend({
   constructor: Router
 })
+
+/**
+ * Convenience method that mounts {@link queryParser} and a store.
+ *
+ * @example <caption>Mount queryParser and store at "/"</caption>
+ * import express from 'express'
+ * import {mount, queryParser, Router} from 'js-data-express'
+ * import {Container} from 'js-data'
+ *
+ * const app = express()
+ * const store = new Container()
+ * const UserMapper = store.defineMapper('user')
+ * const CommentMapper = store.defineMapper('comment')
+ * mount(app, store)
+ *
+ * @example <caption>Mount queryParser and store at "/api"</caption>
+ * mount(app, store, '/api')
+ *
+ * @name module:js-data-express.mount
+ * @type {Function}
+ * @param {*} app
+ * @param {*} store
+ * @param {string} [path]
+ */
+export function mount (app, store, path) {
+  if (!(store instanceof Container)) {
+    throw new Error('You must provide an instance of JSData.Container or JSData.DataStore!')
+  }
+  path || (path = '/')
+  app.use(path, queryParser)
+  app.use(path, new Router(store).router)
+}
 
 /**
  * Details of the current version of the `js-data-express` module.

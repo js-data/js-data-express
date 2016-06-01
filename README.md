@@ -12,6 +12,43 @@ Generate Express.js-compatible route middleware for [js-data](http://www.js-data
 
 To get started, visit __[http://js-data.io](http://www.js-data.io/docs/js-data-express)__.
 
+```js
+import express from 'express'
+import {mount, queryParser, Router} from 'js-data-express'
+import {Container} from 'js-data'
+
+const app = express()
+const store = new Container()
+const UserMapper = store.defineMapper('user')
+const CommentMapper = store.defineMapper('comment')
+```
+
+```js
+// Mount queryParser and store at "/"
+mount(app, store)
+
+// Mount queryParser and store at "/api"
+mount(app, store, '/api')
+
+// Mount queryParser at "/"
+app.use(queryParser)
+// Mount store at "/"
+app.use(new Router(store).router)
+
+// Mount queryParser at "/api"
+app.use('/api' queryParser)
+// Mount store at "/api"
+app.use('/api', new Router(store).router)
+
+var api = app.route('/api')
+// Mount queryParser at "/api"
+api.use(queryParser)
+// Mount UserMapper at "/api/user"
+api.use('/user', new Router(UserMapper).router)
+// Mount UserMapper at "/api/comment"
+api.use('/comment', new Router(CommentMapper).router)
+```
+
 ## Links
 
 * [Quick start](http://www.js-data.io/docs/home#quick-start) - Get started in 5 minutes
