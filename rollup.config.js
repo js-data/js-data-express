@@ -3,7 +3,8 @@ var babel = require('rollup-plugin-babel')
 module.exports = {
   external: [
     'express',
-    'js-data'
+    'js-data',
+    'body-parser'
   ],
   plugins: [
     babel({

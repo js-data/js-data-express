@@ -8,6 +8,7 @@ import {
 import {queryParser} from './queryParser'
 export * from './queryParser'
 import express from 'express'
+import bodyParser from 'body-parser'
 
 function makeHandler (handler) {
   return function (req, res, next) {
@@ -32,6 +33,10 @@ export function Router (component) {
   }
 
   const router = this.router = express.Router()
+  router.use(bodyParser.json())
+  router.use(bodyParser.urlencoded({
+    extended: true
+  }))
 
   if (component instanceof Container) {
     utils.forOwn(component._mappers, (mapper, name) => {
