@@ -4,6 +4,7 @@ function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'defau
 
 var jsData = require('js-data');
 var express = _interopDefault(require('express'));
+var bodyParser = _interopDefault(require('body-parser'));
 
 function parseQuery(query) {
   if (query.where) {
@@ -59,6 +60,10 @@ function Router(component) {
   }
 
   var router = this.router = express.Router();
+  router.use(bodyParser.json());
+  router.use(bodyParser.urlencoded({
+    extended: true
+  }));
 
   if (component instanceof jsData.Container) {
     jsData.utils.forOwn(component._mappers, function (mapper, name) {
