@@ -85,4 +85,9 @@ describe('mount', function () {
         done()
       })
   })
+
+  it('returns an error when the store is not an instance of Container', function () {
+    const app = express()
+    assert.throws(() => JSDataExpress.mount(app, {}, '/api'), Error)
+  })
 })
