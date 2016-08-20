@@ -10,7 +10,7 @@ export * from './queryParser'
 import express from 'express'
 import bodyParser from 'body-parser'
 
-function makeHandler (handler) {
+function makeHandler (handler, resHandler) {
   return function (req, res, next) {
     return utils.resolve()
       .then(function () {
@@ -18,6 +18,9 @@ function makeHandler (handler) {
       })
       .then(function (result) {
         res.status(200)
+        if (resHandler) {
+          return resHandler(result,req,res,next)
+        }
         if (!utils.isUndefined(result)) {
           res.send(result)
         }
@@ -43,44 +46,61 @@ export function Router (component) {
       router.use(`/${mapper.endpoint || name}`, new Router(mapper).router)
     })
   } else if (component instanceof Mapper) {
+    const resHandlers = curateResHandlers(component.resHandler || component.resHandlers);
+
     router.route('/')
       // GET /:resource
       .get(makeHandler(function (req) {
         return component.findAll(req.query, req.jsdataOpts)
-      }))
+      },resHandlers.get))
       // POST /:resource
       .post(makeHandler(function (req) {
         if (utils.isArray(req.body)) {
           return component.createMany(req.body, req.jsdataOpts)
         }
         return component.create(req.body, req.jsdataOpts)
-      }))
+      },resHandlers.post))
       // PUT /:resource
       .put(makeHandler(function (req) {
         if (utils.isArray(req.body)) {
           return component.updateMany(req.body, req.jsdataOpts)
         }
         return component.updateAll(req.body, req.query, req.jsdataOpts)
-      }))
+      },resHandlers.put))
       // DELETE /:resource
       .delete(makeHandler(function (req) {
         return component.destroyAll(req.query, req.jsdataOpts)
-      }))
+      },resHandlers.delete))
 
     router.route('/:id')
       // GET /:resource/:id
       .get(makeHandler(function (req) {
         return component.find(req.params.id, req.jsdataOpts)
-      }))
+      },resHandlers.get))
       // PUT /:resource/:id
       .put(makeHandler(function (req) {
         return component.update(req.params.id, req.body, req.jsdataOpts)
-      }))
+      },resHandlers.put))
       // DELETE /:resource/:id
       .delete(makeHandler(function (req) {
         return component.destroy(req.params.id, req.jsdataOpts)
-      }))
+      },resHandlers.delete))
   }
+}
+
+function curateResHandlers(handlers) {
+  if (!handlers || typeof handlers !== "function" && typeof handlers !== "object") {
+    return null
+  }
+  if (typeof handlers === "function") {
+    return {
+      get: handlers,
+      post: handlers,
+      put: handlers,
+      delete: handlers
+    }
+  }
+  return handlers
 }
 
 Component.extend({
