@@ -19,6 +19,8 @@ function makeHandler (handler, extendedHandlers) {
         })
         .then(() => { return handler(req) })
         .catch(next)
+      } else if (extendedHandlers === false) {
+        return Promise.reject()
       }
 
       return handler(req)
