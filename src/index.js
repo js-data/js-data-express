@@ -10,27 +10,34 @@ export * from './queryParser'
 import express from 'express'
 import bodyParser from 'body-parser'
 
-function makeHandler (handler, resHandler) {
+function makeHandler (handler, extendedHandlers) {
   return function (req, res, next) {
-    return utils.resolve()
-      .then(function () {
-        return handler(req)
-      })
-      .then(function (result) {
-        res.status(200)
-        if (resHandler) {
-          return resHandler(result,req,res,next)
-        }
-        if (!utils.isUndefined(result)) {
-          res.send(result)
-        }
-        res.end()
-      })
-      .catch(next)
+    return utils.resolve().then(function () {
+      if (extendedHandlers && extendedHandlers.req) {
+        return new Promise((resolve) => {
+          extendedHandlers.req(req, res, resolve)
+        })
+        .then(() => { return handler(req) })
+        .catch(next)
+      }
+
+      return handler(req)
+    })
+    .then(function (result) {
+      res.status(200)
+
+      if (extendedHandlers && extendedHandlers.res) {
+        return extendedHandlers.res(result, req, res, next)
+      } else if (!utils.isUndefined(result)) {
+        res.send(result)
+      }
+      res.end()
+    })
+    .catch(next)
   }
 }
 
-export function Router (component) {
+export function Router (component, extendedHandlers = {}) {
   if (!(component instanceof Mapper) && !(component instanceof Container)) {
     throw new Error('You must provide an instance of JSData.Container, JSData.DataStore, or JSData.Mapper!')
   }
@@ -41,66 +48,53 @@ export function Router (component) {
     extended: true
   }))
 
+  if (extendedHandlers.middleware && typeof extendedHandlers.middleware === 'function') {
+    router.use(extendedHandlers.middleware)
+  }
+
   if (component instanceof Container) {
     utils.forOwn(component._mappers, (mapper, name) => {
       router.use(`/${mapper.endpoint || name}`, new Router(mapper).router)
     })
   } else if (component instanceof Mapper) {
-    const resHandlers = curateResHandlers(component.resHandler || component.resHandlers);
-
     router.route('/')
       // GET /:resource
       .get(makeHandler(function (req) {
         return component.findAll(req.query, req.jsdataOpts)
-      },resHandlers.get))
+      }, extendedHandlers.findAll))
       // POST /:resource
       .post(makeHandler(function (req) {
         if (utils.isArray(req.body)) {
           return component.createMany(req.body, req.jsdataOpts)
         }
         return component.create(req.body, req.jsdataOpts)
-      },resHandlers.post))
+      }, extendedHandlers.create))
       // PUT /:resource
       .put(makeHandler(function (req) {
         if (utils.isArray(req.body)) {
           return component.updateMany(req.body, req.jsdataOpts)
         }
         return component.updateAll(req.body, req.query, req.jsdataOpts)
-      },resHandlers.put))
+      }, extendedHandlers.updateAll))
       // DELETE /:resource
       .delete(makeHandler(function (req) {
         return component.destroyAll(req.query, req.jsdataOpts)
-      },resHandlers.delete))
+      }, extendedHandlers.destroyAll))
 
     router.route('/:id')
       // GET /:resource/:id
       .get(makeHandler(function (req) {
         return component.find(req.params.id, req.jsdataOpts)
-      },resHandlers.get))
+      }, extendedHandlers.find))
       // PUT /:resource/:id
       .put(makeHandler(function (req) {
         return component.update(req.params.id, req.body, req.jsdataOpts)
-      },resHandlers.put))
+      }, extendedHandlers.update))
       // DELETE /:resource/:id
       .delete(makeHandler(function (req) {
         return component.destroy(req.params.id, req.jsdataOpts)
-      },resHandlers.delete))
+      }, extendedHandlers.destroy))
   }
-}
-
-function curateResHandlers(handlers) {
-  if (!handlers || typeof handlers !== "function" && typeof handlers !== "object") {
-    return {}
-  }
-  if (typeof handlers === "function") {
-    return {
-      get: handlers,
-      post: handlers,
-      put: handlers,
-      delete: handlers
-    }
-  }
-  return handlers
 }
 
 Component.extend({
