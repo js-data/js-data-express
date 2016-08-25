@@ -20,7 +20,7 @@ function makeHandler (handler, extendedHandlers) {
         .then(() => { return handler(req) })
         .catch(next)
       } else if (extendedHandlers === false) {
-        return Promise.reject()
+        return utils.reject()
       }
 
       return handler(req)
