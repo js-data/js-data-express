@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>js-data-express Index</title>
+	<title>js-data-express Class: Router</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -128,88 +128,236 @@
 		<div id="main">
 			
 
-	
-	
+	<h1 class="page-title">Class: Router</h1>
+<section>
+
+<header>
+    
+        <h2>
+        Router
+        </h2>
+        
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
+<hr>
+<dt>
+  <h4 class="name" id="Router"><span class="type-signature"></span>new Router(component, <span class="optional">config</span>)</h4>
+
+  
+</dt>
+<dd>
+
+  
+
+  
+
+  
+
+  
+  
+    <div class="panel panel-success">
+      <!-- Default panel contents -->
+      <div class="panel-heading"><strong>Method parameters:</strong></div>
+      
+
+<table class="params table table-striped table-bordered">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+        <th>Argument</th>
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>component</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object" target="_blank">Object</a></span>
 
 
 
-    <h3>js-data-express 1.0.0-rc.1</h3>
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Instance of <code>Mapper</code>, <code>Container</code>, <code>SimpleStore</code>,
+or <code>DataStore</code>.</p></td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>config</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#Config">Config</a></span>
 
 
 
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+
+            <td class="description last"><p>Optional configuration.</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    </div>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+<div class="panel panel-default">
+  <div class="panel-heading"><strong>Details</strong></div>
+  <table class="table table-striped table-bordered">
+    <thead>
+      <tr>
+        
+        
+        
+        
+        
+          <th>Source</th>
+        
+        
+        
+        
+        
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        
+        
+        
+        
+        
+          <td>
+            <a href="index.js.html">index.js</a>,
+             <a href="index.js.html#sunlight-1-line-209">line 209</a>
+          </td>
+        
+        
+        
+        
+        
+      </tr>
+    </tbody>
+  </table>
+</div>
+<dl class="details">
+    
+
+  
+
+    
+
+    
+
+    
+
+  
+
+  
+
+  
+
+  
+</dl>
 
 
+  
+</dd>
 
+    
+    </div>
 
+    
 
+    
 
-	
-	
+    
 
+    
 
+    
 
+    
 
+    
 
-    <section class="readme-section">
-        <article><p><img src="https://raw.githubusercontent.com/js-data/js-data/master/js-data.png" alt="js-data logo" title="js-data" align="right" width="96" height="96" /></p>
-<h1>js-data-express</h1><p><a href="http://slack.js-data.io"><img src="http://slack.js-data.io/badge.svg" alt="Slack Status"></a>
-<a href="https://www.npmjs.org/package/js-data-express"><img src="https://img.shields.io/npm/v/js-data-express.svg?style=flat" alt="npm version"></a>
-<a href="https://circleci.com/gh/js-data/js-data-express"><img src="https://img.shields.io/circleci/project/js-data/js-data-express.svg?style=flat" alt="Circle CI"></a>
-<a href="https://www.npmjs.org/package/js-data-express"><img src="https://img.shields.io/npm/dm/js-data-express.svg?style=flat" alt="npm downloads"></a>
-<a href="https://codecov.io/github/js-data/js-data-express"><img src="https://img.shields.io/codecov/c/github/js-data/js-data-express.svg?style=flat" alt="Coverage Status"></a></p>
-<p>Generate Express.js-compatible route middleware for <a href="http://www.js-data.io/">js-data</a> models.</p>
-<p>To get started, visit <strong><a href="http://www.js-data.io/docs/js-data-express">http://js-data.io</a></strong>.</p>
-<pre class="prettyprint source lang-js"><code>import express from 'express'
-import {mount, queryParser, Router} from 'js-data-express'
-import {Container} from 'js-data'
+    
 
-const app = express()
-const store = new Container()
-const UserMapper = store.defineMapper('user')
-const CommentMapper = store.defineMapper('comment')</code></pre><pre class="prettyprint source lang-js"><code>// Mount queryParser and store at &quot;/&quot;
-mount(app, store)
+    
+</article>
 
-// Mount queryParser and store at &quot;/api&quot;
-mount(app, store, '/api')
-
-// Mount queryParser at &quot;/&quot;
-app.use(queryParser)
-// Mount store at &quot;/&quot;
-app.use(new Router(store).router)
-
-// Mount queryParser at &quot;/api&quot;
-app.use('/api' queryParser)
-// Mount store at &quot;/api&quot;
-app.use('/api', new Router(store).router)
-
-var api = app.route('/api')
-// Mount queryParser at &quot;/api&quot;
-api.use(queryParser)
-// Mount UserMapper at &quot;/api/user&quot;
-api.use('/user', new Router(UserMapper).router)
-// Mount UserMapper at &quot;/api/comment&quot;
-api.use('/comment', new Router(CommentMapper).router)</code></pre><h2>Links</h2><ul>
-<li><a href="http://www.js-data.io/docs/home#quick-start">Quick start</a> - Get started in 5 minutes</li>
-<li><a href="http://www.js-data.io/docs/home">Guides and Tutorials</a> - Learn how to use JSData</li>
-<li><a href="http://www.js-data.io/docs/js-data-express"><code>js-data-express</code> Guide</a> - Learn how to use <code>js-data-express</code></li>
-<li><a href="http://api.js-data.io">API Reference Docs</a> - Explore components, methods, options, etc.</li>
-<li><a href="http://js-data.io/docs/community">Community &amp; Support</a> - Find solutions and chat with the community</li>
-<li><a href="http://js-data.io/docs/contributing">General Contributing Guide</a> - Give back and move the project forward<ul>
-<li><a href="https://github.com/js-data/js-data-express/blob/master/.github/CONTRIBUTING.md">Contributing to js-data-express</a></li>
-</ul>
-</li>
-</ul>
-<h2>License</h2><p>The MIT License (MIT)</p>
-<p>Copyright (c) 2014-2016 js-data-express project authors</p>
-<ul>
-<li><a href="https://github.com/js-data/js-data-express/blob/master/LICENSE">LICENSE</a></li>
-<li><a href="https://github.com/js-data/js-data-express/blob/master/AUTHORS">AUTHORS</a></li>
-<li><a href="https://github.com/js-data/js-data-express/blob/master/CONTRIBUTORS">CONTRIBUTORS</a></li>
-</ul></article>
-    </section>
-
-
-
+</section>
 
 
 
