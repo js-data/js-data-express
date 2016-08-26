@@ -232,7 +232,11 @@ export function Router (component, config = {}) {
 
   if (component instanceof Container) {
     utils.forOwn(component._mappers, (mapper, name) => {
-      router.use(`/${mapper.endpoint || name}`, new Router(mapper, config).router)
+      let endpoint = `/${mapper.endpoint || name}`
+      if (utils.isFunction(config.getEndpoint)) {
+        endpoint = config.getEndpoint(mapper)
+      }
+      router.use(endpoint, new Router(mapper, config).router)
     })
   } else if (component instanceof Mapper) {
     const createManyHandler = makeHandler('createMany', component, config)
