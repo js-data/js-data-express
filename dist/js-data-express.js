@@ -1,5 +1,7 @@
 'use strict';
 
+Object.defineProperty(exports, '__esModule', { value: true });
+
 function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
 
 var jsData = require('js-data');
@@ -40,21 +42,347 @@ function queryParser(req, res, next) {
   }
 }
 
-function makeHandler(handler) {
+var DEFAULTS = {
+  create: {
+    action: function action(component, req) {
+      return component.create(req.body, req.jsdataOpts);
+    },
+
+    statusCode: 201
+  },
+  createMany: {
+    action: function action(component, req) {
+      return component.createMany(req.body, req.jsdataOpts);
+    },
+
+    statusCode: 201
+  },
+  destroy: {
+    action: function action(component, req) {
+      return component.destroy(req.params.id, req.jsdataOpts);
+    },
+
+    statusCode: 204
+  },
+  destroyAll: {
+    action: function action(component, req) {
+      return component.destroyAll(req.query, req.jsdataOpts);
+    },
+
+    statusCode: 204
+  },
+  find: {
+    action: function action(component, req) {
+      return component.find(req.params.id, req.jsdataOpts);
+    },
+
+    statusCode: 200
+  },
+  findAll: {
+    action: function action(component, req) {
+      return component.findAll(req.query, req.jsdataOpts);
+    },
+
+    statusCode: 200
+  },
+  update: {
+    action: function action(component, req) {
+      return component.update(req.params.id, req.body, req.jsdataOpts);
+    },
+
+    statusCode: 200
+  },
+  updateAll: {
+    action: function action(component, req) {
+      return component.updateAll(req.body, req.query, req.jsdataOpts);
+    },
+
+    statusCode: 200
+  },
+  updateMany: {
+    action: function action(component, req) {
+      return component.updateMany(req.body, req.jsdataOpts);
+    },
+
+    statusCode: 200
+  }
+};
+
+function makeRequestHandler(method, component) {
+  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+  config[method] || (config[method] = {});
+  var action = config[method].action || DEFAULTS[method].action;
+
   return function (req, res, next) {
-    return jsData.utils.resolve().then(function () {
-      return handler(req);
-    }).then(function (result) {
-      res.status(200);
-      if (!jsData.utils.isUndefined(result)) {
-        res.send(result);
-      }
-      res.end();
+    action(component, req).then(function (result) {
+      req.jsdataResult = result;
+      next();
     }).catch(next);
   };
 }
 
+function makeResponseHandler(method, component) {
+  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+  var methodConfig = config[method] || {};
+  var statusCode = methodConfig.statusCode || DEFAULTS[method].statusCode;
+  var toJSON = void 0;
+
+  // Pick the user's toJSON setting, in order of preference
+  if (jsData.utils.isFunction(methodConfig.toJSON)) {
+    toJSON = function toJSON(component, result, opts) {
+      return methodConfig.toJSON(component, result, opts);
+    };
+  } else if (methodConfig.toJSON === false) {
+    toJSON = function toJSON(component, result, opts) {
+      return result;
+    };
+  } else if (methodConfig.toJSON === true) {
+    toJSON = function toJSON(component, result, opts) {
+      return component.toJSON(result, opts);
+    };
+  } else {
+    if (jsData.utils.isFunction(config.toJSON)) {
+      toJSON = function toJSON(component, result, opts) {
+        return config.toJSON(component, result, opts);
+      };
+    } else if (config.toJSON === false) {
+      toJSON = function toJSON(component, result, opts) {
+        return result;
+      };
+    } else {
+      toJSON = function toJSON(component, result, opts) {
+        return component.toJSON(result, opts);
+      };
+    }
+  }
+
+  return function (req, res, next) {
+    var result = req.jsdataResult;
+
+    res.status(statusCode);
+
+    try {
+      if (result !== undefined) {
+        res.send(toJSON(component, result, req.jsdataOpts));
+      }
+    } catch (err) {
+      return next(err);
+    }
+
+    res.end();
+  };
+}
+
+var handlerNoop = function handlerNoop(req, res, next) {
+  next();
+};
+
+function makeHandler(method, component) {
+  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
+  config[method] || (config[method] = {});
+  var userRequestHandler = jsData.utils.isFunction(config[method].request) ? config[method].request : handlerNoop;
+  var defaultRequestHandler = makeRequestHandler(method, component, config);
+  var defaultResponseHandler = makeResponseHandler(method, component, config);
+
+  return function (req, res, next) {
+    userRequestHandler(req, res, function (err) {
+      if (err) {
+        return next(err);
+      }
+      defaultRequestHandler(req, res, function (err) {
+        if (err) {
+          return next(err);
+        }
+        if (jsData.utils.isFunction(config[method].response)) {
+          config[method].response(req, res, next);
+        } else {
+          defaultResponseHandler(req, res, next);
+        }
+      });
+    });
+  };
+}
+
+/**
+ * TODO
+ *
+ * @typedef RequestHandler
+ * @type function
+ * @param {object} req TODO
+ * @param {object} res TODO
+ * @param {function} next TODO
+ */
+
+/**
+ * TODO
+ *
+ * @typedef ResponseHandler
+ * @type function
+ * @param {object} req TODO
+ * @param {object} res TODO
+ * @param {function} next TODO
+ */
+
+/**
+ * @typedef ActionHandler
+ * @type function
+ * @param {object} component Instance of `Mapper`, `Container`, `SimpleStore`,
+ * or `DataStore`.
+ * @param {object} req TODO
+ * @returns {Promise} Promise that resolves with the result.
+ */
+
+/**
+ * @typedef Serializer
+ * @type function
+ * @param {object} component Instance of `Mapper`, `Container`, `SimpleStore`,
+ * or `DataStore`.
+ * @param {object} result The result of the endpoint's {@link ActionHandler}.
+ * @param {object} opts Configuration options.
+ * @returns {*} The serialized result.
+ */
+
+/**
+ * TODO
+ *
+ * @typedef CreateConfig
+ * @type object
+ * @property {ActionHandler} action TODO
+ * @property {RequestHandler} request TODO
+ * @property {ResponseHandler} response TODO
+ * @property {number} statusCode TODO
+ * @property {Serializer|boolean} toJSON TODO
+ */
+
+/**
+ * TODO
+ *
+ * @typedef CreateManyConfig
+ * @type object
+ * @property {ActionHandler} action TODO
+ * @property {RequestHandler} request TODO
+ * @property {ResponseHandler} response TODO
+ * @property {number} statusCode TODO
+ * @property {Serializer|boolean} toJSON TODO
+ */
+
+/**
+ * TODO
+ *
+ * @typedef DestroyConfig
+ * @type object
+ * @property {ActionHandler} action TODO
+ * @property {RequestHandler} request TODO
+ * @property {ResponseHandler} response TODO
+ * @property {number} statusCode TODO
+ * @property {Serializer|boolean} toJSON TODO
+ */
+
+/**
+ * TODO
+ *
+ * @typedef DestroyAllConfig
+ * @type object
+ * @property {ActionHandler} action TODO
+ * @property {RequestHandler} request TODO
+ * @property {ResponseHandler} response TODO
+ * @property {number} statusCode TODO
+ * @property {Serializer|boolean} toJSON TODO
+ */
+
+/**
+ * TODO
+ *
+ * @typedef FindConfig
+ * @type object
+ * @property {ActionHandler} action TODO
+ * @property {RequestHandler} request TODO
+ * @property {ResponseHandler} response TODO
+ * @property {number} statusCode TODO
+ * @property {Serializer|boolean} toJSON TODO
+ */
+
+/**
+ * TODO
+ *
+ * @typedef FindAllConfig
+ * @type object
+ * @property {ActionHandler} action TODO
+ * @property {RequestHandler} request TODO
+ * @property {ResponseHandler} response TODO
+ * @property {number} statusCode TODO
+ * @property {Serializer|boolean} toJSON TODO
+ */
+
+/**
+ * TODO
+ *
+ * @typedef UpdateConfig
+ * @type object
+ * @property {ActionHandler} action TODO
+ * @property {RequestHandler} request TODO
+ * @property {ResponseHandler} response TODO
+ * @property {number} statusCode TODO
+ * @property {Serializer|boolean} toJSON TODO
+ */
+
+/**
+ * TODO
+ *
+ * @typedef UpdateAllConfig
+ * @type object
+ * @property {ActionHandler} action TODO
+ * @property {RequestHandler} request TODO
+ * @property {ResponseHandler} response TODO
+ * @property {number} statusCode TODO
+ * @property {Serializer|boolean} toJSON TODO
+ */
+
+/**
+ * TODO
+ *
+ * @typedef UpdateManyConfig
+ * @type object
+ * @property {ActionHandler} action TODO
+ * @property {RequestHandler} request TODO
+ * @property {ResponseHandler} response TODO
+ * @property {number} statusCode TODO
+ * @property {Serializer|boolean} toJSON TODO
+ */
+
+/**
+ * TODO
+ *
+ * @typedef Config
+ * @type object
+ * @property {CreateConfig} [create] TODO
+ * @property {CreateManyConfig} [createMany] TODO
+ * @property {DestroyConfig} [destroy] TODO
+ * @property {DestroyAllConfig} [destroyAll] TODO
+ * @property {FindConfig} [find] TODO
+ * @property {FindAllConfig} [findAll] TODO
+ * @property {RequestHandler} request TODO
+ * @property {ResponseHandler} response TODO
+ * @property {Serializer|boolean} [toJSON] TODO
+ * @property {UpdateConfig} [update] TODO
+ * @property {UpdateAllConfig} [updateAll] TODO
+ * @property {UpdateManyConfig} [updateMany] TODO
+ */
+
+/**
+ * @class Router
+ *
+ * @param {object} component Instance of `Mapper`, `Container`, `SimpleStore`,
+ * or `DataStore`.
+ * @param {Config} [config] Optional configuration.
+ *
+ */
 function Router(component) {
+  var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+
   if (!(component instanceof jsData.Mapper) && !(component instanceof jsData.Container)) {
     throw new Error('You must provide an instance of JSData.Container, JSData.DataStore, or JSData.Mapper!');
   }
@@ -65,48 +393,58 @@ function Router(component) {
     extended: true
   }));
 
+  if (jsData.utils.isFunction(config.request)) {
+    router.use(config.request);
+    config.request = undefined;
+  }
+
   if (component instanceof jsData.Container) {
     jsData.utils.forOwn(component._mappers, function (mapper, name) {
-      router.use('/' + (mapper.endpoint || name), new Router(mapper).router);
+      var endpoint = '/' + (mapper.endpoint || name);
+      if (jsData.utils.isFunction(config.getEndpoint)) {
+        endpoint = config.getEndpoint(mapper);
+      }
+      router.use(endpoint, new Router(mapper, config).router);
     });
   } else if (component instanceof jsData.Mapper) {
-    router.route('/')
-    // GET /:resource
-    .get(makeHandler(function (req) {
-      return component.findAll(req.query, req.jsdataOpts);
-    }))
-    // POST /:resource
-    .post(makeHandler(function (req) {
-      if (jsData.utils.isArray(req.body)) {
-        return component.createMany(req.body, req.jsdataOpts);
-      }
-      return component.create(req.body, req.jsdataOpts);
-    }))
-    // PUT /:resource
-    .put(makeHandler(function (req) {
-      if (jsData.utils.isArray(req.body)) {
-        return component.updateMany(req.body, req.jsdataOpts);
-      }
-      return component.updateAll(req.body, req.query, req.jsdataOpts);
-    }))
-    // DELETE /:resource
-    .delete(makeHandler(function (req) {
-      return component.destroyAll(req.query, req.jsdataOpts);
-    }));
+    (function () {
+      var createManyHandler = makeHandler('createMany', component, config);
+      var createHandler = makeHandler('create', component, config);
+      var updateManyHandler = makeHandler('updateMany', component, config);
+      var updateAllHandler = makeHandler('updateAll', component, config);
 
-    router.route('/:id')
-    // GET /:resource/:id
-    .get(makeHandler(function (req) {
-      return component.find(req.params.id, req.jsdataOpts);
-    }))
-    // PUT /:resource/:id
-    .put(makeHandler(function (req) {
-      return component.update(req.params.id, req.body, req.jsdataOpts);
-    }))
-    // DELETE /:resource/:id
-    .delete(makeHandler(function (req) {
-      return component.destroy(req.params.id, req.jsdataOpts);
-    }));
+      router.route('/')
+      // GET /:resource
+      .get(makeHandler('findAll', component, config))
+      // POST /:resource
+      .post(function (req, res, next) {
+        if (jsData.utils.isArray(req.body)) {
+          createManyHandler(req, res, next);
+        } else {
+          createHandler(req, res, next);
+        }
+      })
+      // PUT /:resource
+      .put(function (req, res, next) {
+        if (jsData.utils.isArray(req.body)) {
+          updateManyHandler(req, res, next);
+        } else {
+          updateAllHandler(req, res, next);
+        }
+      })
+      // DELETE /:resource
+      .delete(makeHandler('destroyAll', component, config));
+
+      router.route('/:id')
+      // GET /:resource/:id
+      .get(makeHandler('find', component, config))
+      // PUT /:resource/:id
+      .put(makeHandler('update', component, config))
+      // DELETE /:resource/:id
+      .delete(makeHandler('destroy', component, config));
+    })();
+  } else {
+    throw new Error('Unrecognized component!');
   }
 }
 
@@ -118,47 +456,54 @@ jsData.Component.extend({
  * Convenience method that mounts {@link queryParser} and a store.
  *
  * @example <caption>Mount queryParser and store at "/"</caption>
- * import express from 'express'
- * import {mount, queryParser, Router} from 'js-data-express'
- * import {Container} from 'js-data'
+ * import express from 'express';
+ * import { mount, queryParser, Router } from 'js-data-express';
+ * import { Container } from 'js-data';
  *
- * const app = express()
- * const store = new Container()
- * const UserMapper = store.defineMapper('user')
- * const CommentMapper = store.defineMapper('comment')
- * mount(app, store)
+ * const app = express();
+ * const store = new Container();
+ * const UserMapper = store.defineMapper('user');
+ * const CommentMapper = store.defineMapper('comment');
+ * mount(app, store);
  *
  * @example <caption>Mount queryParser and store at "/api"</caption>
- * mount(app, store, '/api')
+ * mount(app, store, '/api');
  *
  * @name module:js-data-express.mount
- * @type {Function}
+ * @method
  * @param {*} app
- * @param {*} store
- * @param {string} [path]
+ * @param {object} store Instance of `Mapper`, `Container`, `SimpleStore`,
+ * or `DataStore`.
+ * @param {Config|string} [config] Configuration options.
  */
-function mount(app, store, path) {
+function mount(app, store) {
+  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
   if (!(store instanceof jsData.Container)) {
     throw new Error('You must provide an instance of JSData.Container or JSData.DataStore!');
   }
-  path || (path = '/');
-  app.use(path, queryParser);
-  app.use(path, new Router(store).router);
+  if (jsData.utils.isString(config)) {
+    config = { path: config };
+  }
+  config.path || (config.path = '/');
+
+  app.use(config.path, queryParser);
+  app.use(config.path, new Router(store, config).router);
 }
 
 /**
  * Details of the current version of the `js-data-express` module.
  *
  * @example <caption>ES2015 modules import</caption>
- * import {version} from 'js-data-express'
- * console.log(version.full)
+ * import { version } from 'js-data-express';
+ * console.log(version.full);
  *
  * @example <caption>CommonJS import</caption>
- * var version = require('js-data-express').version
- * console.log(version.full)
+ * var version = require('js-data-express').version;
+ * console.log(version.full);
  *
  * @name module:js-data-express.version
- * @type {Object}
+ * @type {object}
  * @property {string} version.full The full semver value.
  * @property {number} version.major The major version number.
  * @property {number} version.minor The minor version number.
@@ -169,8 +514,7 @@ function mount(app, store, path) {
  * otherwise `false` if the current version is not beta.
  */
 var version = {
-  alpha: 1,
-  full: '1.0.0-alpha.1',
+  full: '1.0.0-rc.1',
   major: 1,
   minor: 0,
   patch: 0
@@ -180,12 +524,12 @@ var version = {
  * {@link Router} class.
  *
  * @example <caption>ES2015 modules import</caption>
- * import {Router} from 'js-data-express'
- * const adapter = new Router()
+ * import { Router } from 'js-data-express';
+ * const adapter = new Router();
  *
  * @example <caption>CommonJS import</caption>
- * var Router = require('js-data-express').Router
- * var adapter = new Router()
+ * var Router = require('js-data-express').Router;
+ * var adapter = new Router();
  *
  * @name module:js-data-express.Router
  * @see Router
@@ -196,15 +540,15 @@ var version = {
  * Registered as `js-data-express` in NPM.
  *
  * @example <caption>Install from NPM</caption>
- * npm i --save js-data-express@beta js-data@beta
+ * npm i --save js-data-express@rc js-data@rc
  *
  * @example <caption>ES2015 modules import</caption>
- * import {Router} from 'js-data-express'
- * const adapter = new Router()
+ * import { Router } from 'js-data-express';
+ * const adapter = new Router();
  *
  * @example <caption>CommonJS import</caption>
- * var Router = require('js-data-express').Router
- * var adapter = new Router()
+ * var Router = require('js-data-express').Router;
+ * var adapter = new Router();
  *
  * @module js-data-express
  */
