@@ -75,10 +75,22 @@ You can add middleware to a all/or specific resource endpoint.
 ```js
 const config = {
   path: '/api',
-  // the middleware method
+  // the middleware method for all requests
   request: (req, res, next) => {
     console.log(req.method + '::' + req.path)
     next()
+  },
+
+  // middleware on a specific action
+  destroy: {
+    request: (req, res, next) => {
+      if (req.session.isAdmin) {
+        next()
+      } else {
+        // deny request for destroy
+        next(new Error('User is not admin'))
+      }
+    }
   }
 }
 
