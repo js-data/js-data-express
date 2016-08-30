@@ -12,6 +12,8 @@ Generate Express.js-compatible route middleware for [js-data](http://www.js-data
 
 To get started, visit __[http://js-data.io](http://www.js-data.io/docs/js-data-express)__.
 
+### TL;DR
+
 ```js
 import express from 'express'
 import {mount, queryParser, Router} from 'js-data-express'
@@ -23,23 +25,40 @@ const UserMapper = store.defineMapper('user')
 const CommentMapper = store.defineMapper('comment')
 ```
 
+Use `mount()`
+
 ```js
-// Mount queryParser and store at "/"
+// Mount store at "/"
 mount(app, store)
 
-// Mount queryParser and store at "/api"
+// Mount store at "/api"
 mount(app, store, '/api')
+```
 
+Adding as middleware
+```js
 // Mount queryParser at "/"
 app.use(queryParser)
 // Mount store at "/"
 app.use(new Router(store).router)
+```
 
-// Mount queryParser at "/api"
-app.use('/api' queryParser)
-// Mount store at "/api"
-app.use('/api', new Router(store).router)
 
+### js-data-express#Mount
+
+`mount()` will setup routes in the Express instance passed in as the first
+argument and expects a js-data store as the second arg, `mount(app, store)`. The endpoints will be reachable for each resource, `Mapper.endpoint` or `Mapper.name` (ie: `GET /user`). You can prefix the endpoints by passing a third arguement, `mount(app, store, '/api')`.
+
+*`queryParser` is added to the endpoints when using `mount()`*
+
+### js-data-express#Router
+
+`new Router(store).router` will be an Express router instance that can be dropped
+in with `app.use('/api', new Router(store).router)`.
+
+### Create Express Route Instance
+Be sure to add `queryParser` as middleware in this case. This will correctly parse  js-data calls to your Express app for use with the store.
+```js
 var api = app.route('/api')
 // Mount queryParser at "/api"
 api.use(queryParser)
@@ -47,6 +66,91 @@ api.use(queryParser)
 api.use('/user', new Router(UserMapper).router)
 // Mount UserMapper at "/api/comment"
 api.use('/comment', new Router(CommentMapper).router)
+```
+
+### Custom Route Middleware
+
+You can add middleware to a all/or specific resource endpoint.
+
+```js
+const config = {
+  path: '/api',
+  // the middleware method
+  request: (req, res, next) => {
+    console.log(req.method + '::' + req.path)
+    next()
+  }
+}
+
+mount(app, store, config)
+```
+
+### Custom Request/Response Handlers
+If you need custom logic in your request, you can declare your handler per method (http verb action, ie: 'create', 'updateAll', etc.) in the config.
+
+*Note: js-data-express attaches the results from the store query to `req.jsdataResult`*
+
+You can override the response results with a custom `toJSON` method in the config, per method the same as the request handlers or declare `toJSON` method for all action response handlers with `toJSON` at the top level of the config object.
+
+```js
+// add custom request/response for a single endpoint resource
+const UserConfig = {
+  path: '/api',
+
+  // all actions response handler method
+  toJSON: (component, results, jsdataOpts) => {
+    // delete password on response for all actions
+    if (Array.isArray(results)) {
+      results = results.map((r) => {
+        delete r.password
+        return r
+      })
+    }
+    else if (results && results.id) {
+      delete results.password
+    }
+
+    return results
+  },
+
+  create: {
+    // request handler - must return a Promise
+    action: (component, req) {
+      return new Promise((resolve, reject) => {
+        // logic...
+        resolve(results)
+      })
+    },
+    toJSON: (component, results, jsdataOpts) => {
+      // do something to response result only on 'create' action
+      return results
+    }
+  },
+
+  destroy: {
+    action: (component, req) {
+      if (req.session && req.session.isAdmin) {
+        return component.destroy(req.params.id, req.jsdataOpts)
+      }
+      else {
+        return Promise.reject()
+      }
+    }
+  },
+
+  destroyAll: {
+    action: (component, req) {
+      if (req.session && req.session.isAdmin) {
+        return component.destroyAll(req.query, req.jsdataOpts)
+      }
+      else {
+        return Promise.reject()
+      }
+    }
+  }
+}
+
+mount(app, UserMapper, UserConfig)
 ```
 
 ## Links
