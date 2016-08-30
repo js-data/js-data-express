@@ -273,8 +273,6 @@ export function Router (component, config = {}) {
       .put(makeHandler('update', component, config))
       // DELETE /:resource/:id
       .delete(makeHandler('destroy', component, config))
-  } else {
-    throw new Error('Unrecognized component!')
   }
 }
 
