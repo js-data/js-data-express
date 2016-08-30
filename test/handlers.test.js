@@ -1,15 +1,12 @@
 import {
   assert,
-  // sinon,
   JSData,
-  // JSDataExpress,
-  // queryParser,
   makeRequestHandler,
   makeResponseHandler
 } from './_setup'
-var httpMocks = require('node-mocks-http')
+const httpMocks = require('node-mocks-http')
 
-describe('js-data-express user extended handlers', function () {
+describe('js-data-express handlers', function () {
   it('should have correct exports', function () {
     assert.equal(typeof makeRequestHandler, 'function')
     assert.equal(typeof makeResponseHandler, 'function')

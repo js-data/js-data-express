@@ -1,9 +1,10 @@
-import {expect} from 'chai'
 import {
   assert,
   JSData,
   JSDataExpress
 } from './_setup'
+import request from 'supertest'
+import express from 'express'
 
 describe('js-data-express', function () {
   it('should have correct exports', function () {
@@ -39,7 +40,40 @@ describe('js-data-express', function () {
     })
   })
 
-  it('should throw if component is not Container or Mapper instance', function () {
-    expect(() => { JSDataExpress.Router({}) }).to.throw(Error)
+  it('makeHandler errors should be executed', function () {
+    const _app = express()
+    const __app = express()
+    const store = new JSData.Container()
+    store.defineMapper('user')
+    const _config = {
+      'find': {
+        request: (req, res, next) => {
+          next('error')
+        }
+      }
+    }
+    const __config = {
+      'find': {
+        action: (component, req) => {
+          return new Promise((resolve, reject) => {
+            reject('error')
+          })
+        }
+      }
+    }
+
+    JSDataExpress.mount(_app, store, _config)
+    JSDataExpress.mount(__app, store, __config)
+
+    request(_app)
+      .get('/user/abc')
+      .end(function (err, response) {
+        if (err) {}
+      })
+    request(__app)
+      .get('/user/abc')
+      .end(function (err, response) {
+        if (err) {}
+      })
   })
 })
