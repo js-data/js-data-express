@@ -12,6 +12,7 @@ Generate Express.js-compatible route middleware for [js-data](http://www.js-data
 
 To get started, visit __[http://js-data.io](http://www.js-data.io/docs/js-data-express)__.
 
+
 ```js
 import express from 'express'
 import {mount, queryParser, Router} from 'js-data-express'
@@ -23,37 +24,29 @@ const UserMapper = store.defineMapper('user')
 const CommentMapper = store.defineMapper('comment')
 ```
 
+Use `mount()`
+
 ```js
-// Mount queryParser and store at "/"
+// Mount store at "/"
 mount(app, store)
 
-// Mount queryParser and store at "/api"
+// Mount store at "/api"
 mount(app, store, '/api')
+```
 
+Adding as middleware
+```js
 // Mount queryParser at "/"
 app.use(queryParser)
 // Mount store at "/"
 app.use(new Router(store).router)
-
-// Mount queryParser at "/api"
-app.use('/api' queryParser)
-// Mount store at "/api"
-app.use('/api', new Router(store).router)
-
-var api = app.route('/api')
-// Mount queryParser at "/api"
-api.use(queryParser)
-// Mount UserMapper at "/api/user"
-api.use('/user', new Router(UserMapper).router)
-// Mount UserMapper at "/api/comment"
-api.use('/comment', new Router(CommentMapper).router)
 ```
 
 ## Links
 
 * [Quick start](http://www.js-data.io/docs/home#quick-start) - Get started in 5 minutes
 * [Guides and Tutorials](http://www.js-data.io/docs/home) - Learn how to use JSData
-* [`js-data-express` Guide](http://www.js-data.io/docs/js-data-express) - Learn how to use `js-data-express`
+* [`js-data-express` Guide](http://www.js-data.io/v3.0/docs/js-data-express) - Learn how to use `js-data-express`
 * [API Reference Docs](http://api.js-data.io) - Explore components, methods, options, etc.
 * [Community & Support](http://js-data.io/docs/community) - Find solutions and chat with the community
 * [General Contributing Guide](http://js-data.io/docs/contributing) - Give back and move the project forward
