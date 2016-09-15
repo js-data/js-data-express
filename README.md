@@ -40,13 +40,16 @@ app.use('/api' queryParser)
 // Mount store at "/api"
 app.use('/api', new Router(store).router)
 
-var api = app.route('/api')
-// Mount queryParser at "/api"
+// Create an express Router instance
+const api = express().Router()
+// Mount queryParser
 api.use(queryParser)
 // Mount UserMapper at "/api/user"
 api.use('/user', new Router(UserMapper).router)
 // Mount UserMapper at "/api/comment"
 api.use('/comment', new Router(CommentMapper).router)
+// Use api Router in an existing express app instance
+app.use('/api', api)
 ```
 
 ## Links
