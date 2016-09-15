@@ -40,32 +40,44 @@ function makeHandler (method, component, config = {}) {
   }
 }
 
+
 /**
- * TODO
+ * A middleware method invoked on all requests
  *
  * @typedef RequestHandler
  * @type function
- * @param {object} req TODO
- * @param {object} res TODO
- * @param {function} next TODO
+ * @param {object} req HTTP(S) Request Object
+ * @param {object} res HTTP(S) Response Object
+ * @param {function} next Express `next()` callback to continue the chain
  */
 
 /**
- * TODO
+ * A method that handles all responses
  *
  * @typedef ResponseHandler
  * @type function
- * @param {object} req TODO
- * @param {object} res TODO
- * @param {function} next TODO
+ * @param {object} req HTTP(S) Request Object
+ * @param {object} res HTTP(S) Response Object
+ * @param {function} next Express `next()` callback to continue the chain
  */
 
 /**
+ * Custom defined method that retrieves data/results for an endpoint
+ *
  * @typedef ActionHandler
  * @type function
  * @param {object} component Instance of `Mapper`, `Container`, `SimpleStore`,
  * or `DataStore`.
- * @param {object} req TODO
+ * @param {object} req HTTP(S) Request Object
+ *
+ * @example <caption>A custom action</caption>
+ * (component, req) => {
+ *    return new Promise((resolve, reject) => {
+ *      // ..some logic
+ *      return resolve(results)
+ *     })
+ * }
+ *
  * @returns {Promise} Promise that resolves with the result.
  */
 
@@ -76,134 +88,124 @@ function makeHandler (method, component, config = {}) {
  * or `DataStore`.
  * @param {object} result The result of the endpoint's {@link ActionHandler}.
  * @param {object} opts Configuration options.
- * @returns {*} The serialized result.
+ * @returns {object|array|undefined} The serialized result.
  */
 
 /**
- * TODO
+ * create action configs
  *
  * @typedef CreateConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * createMany action configs
  *
  * @typedef CreateManyConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * destroy action configs
  *
  * @typedef DestroyConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * destroyAll action configs
  *
  * @typedef DestroyAllConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * find action configs
  *
  * @typedef FindConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * findAll action configs
  *
  * @typedef FindAllConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * update action configs
  *
  * @typedef UpdateConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * UpdateAllConfig action configs
  *
  * @typedef UpdateAllConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * updateMany action configs
  *
  * @typedef UpdateManyConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
+ */
+
+
+/**
+ * Define endpoint path with custom logic
+ *
+ * @typedef Endpoint
+ * @type function
+ * @param {Object} mapper Component Mapper object
  */
 
 /**
- * TODO
+ * Configuration options for endpoints, actions, & request/response
  *
  * @typedef Config
  * @type object
- * @property {CreateConfig} [create] TODO
- * @property {CreateManyConfig} [createMany] TODO
- * @property {DestroyConfig} [destroy] TODO
- * @property {DestroyAllConfig} [destroyAll] TODO
- * @property {FindConfig} [find] TODO
- * @property {FindAllConfig} [findAll] TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {Serializer|boolean} [toJSON] TODO
- * @property {UpdateConfig} [update] TODO
- * @property {UpdateAllConfig} [updateAll] TODO
- * @property {UpdateManyConfig} [updateMany] TODO
+ * @property {Endpoint} [getEndpoint] Define endpoints with custom method
+ * @property {CreateConfig} [create] create action configs
+ * @property {CreateManyConfig} [createMany] createMany action configs
+ * @property {DestroyConfig} [destroy] destroy action configs
+ * @property {DestroyAllConfig} [destroyAll] destroyAll action configs
+ * @property {FindConfig} [find] find action configs
+ * @property {FindAllConfig} [findAll] findAll action configs
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
+ * @property {UpdateConfig} [update] update action configs
+ * @property {UpdateAllConfig} [updateAll] updateAll action configs
+ * @property {UpdateManyConfig} [updateMany] updateMany action configs
  */
 
 /**
