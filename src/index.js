@@ -40,7 +40,6 @@ function makeHandler (method, component, config = {}) {
   }
 }
 
-
 /**
  * A middleware method invoked on all requests
  *
@@ -180,7 +179,6 @@ function makeHandler (method, component, config = {}) {
  * @property {number} [statusCode] The status code to return with the response
  * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
-
 
 /**
  * Define endpoint path with custom logic
