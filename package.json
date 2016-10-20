@@ -39,7 +39,7 @@
   },
   "scripts": {
     "doc": "jsdoc -c conf.json src",
-    "lint": "repo-tools lint \"**/*.js\"",
+    "lint": "repo-tools lint \"src/**/*.js\" \"test/**/*.js\"",
     "bundle": "rollup -c rollup.config.js -f cjs -o dist/js-data-express.js -m dist/js-data-express.js.map src/index.js && repo-tools write-version dist/js-data-express.js",
     "build": "npm run lint && npm run bundle",
     "mocha": "mocha --recursive -t 30000 -R dot -r babel-core/register -r babel-polyfill",
