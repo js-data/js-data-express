@@ -56,7 +56,7 @@ describe('js-data-express', function () {
       'find': {
         action: (component, req) => {
           return new Promise((resolve, reject) => {
-            reject('error')
+            reject('error') // eslint-disable-line
           })
         }
       }

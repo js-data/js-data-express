@@ -1,15 +1,18 @@
+# Adjust the behavior of the virtual machine (VM)
+machine:
+  node:
+    version: 6.11.2
+
+# Use for broader build-related configuration
 general:
   branches:
     ignore:
       - gh-pages
-machine:
-  node:
-    version: 6
+
 dependencies:
   pre:
     - npm i -g npm
     - npm i -g codecov nyc
-    - npm i js-data@^3.0.1 express
 test:
   post:
-    - nyc report --reporter=lcov | codecov
+    - nyc report --reporter=lcov > coverage.lcov && codecov

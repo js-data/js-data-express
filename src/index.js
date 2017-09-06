@@ -6,10 +6,11 @@ import {
 } from 'js-data'
 
 import { queryParser } from './queryParser'
-export * from './queryParser'
 import * as handlers from './handlers'
 import express from 'express'
 import bodyParser from 'body-parser'
+
+export * from './queryParser'
 
 const handlerNoop = (req, res, next) => {
   next()

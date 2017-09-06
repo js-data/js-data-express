@@ -41,3 +41,6 @@ node_modules
 coverage/
 doc/
 .nyc_output/
+yarn.lock
+*.log
+package-lock.json
