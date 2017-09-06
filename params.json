@@ -1,6 +1,0 @@
-{
-  "name": "js-data-express",
-  "tagline": "Generate Express.js-compatible route middleware for JSData models.",
-  "body": "<img src=\"https://raw.githubusercontent.com/js-data/js-data/master/js-data.png\" alt=\"js-data logo\" title=\"js-data\" align=\"right\" width=\"96\" height=\"96\" />\r\n\r\n### js-data-express API Reference Docs\r\n\r\nTo get started visit __[http://js-data.io](http://www.js-data.io)__.\r\n\r\n[Back to api.js-data.io](http://api.js-data.io).\r\n\r\n* [1.0.0-rc.1 (latest)](http://api.js-data.io/js-data-express/1.0.0-rc.1/index.html)\r\n* [1.0.0-alpha.1](http://api.js-data.io/js-data-express/1.0.0-alpha.1/index.html)",
-  "note": "Don't delete this file! It's used internally to help with page regeneration."
-}

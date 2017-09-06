@@ -1,0 +1,8 @@
+title: js-data-express
+description: Generate Express.js-compatible route middleware for JSData models.
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-minimal
+
+gems:
+  - jekyll-mentions
