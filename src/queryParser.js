@@ -8,7 +8,7 @@ export function parseQuery (query) {
     const orderBy = query.orderBy || query.sort
     if (Array.isArray(orderBy)) {
       query.orderBy = orderBy.map((clause) => {
-        if (typeof clause === 'string') {
+        if (typeof clause === 'string' && clause.indexOf('{') >= 0) {
           return JSON.parse(clause)
         }
         return clause
