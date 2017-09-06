@@ -170,4 +170,3 @@ describe('queryParser', function () {
   it('should parse offset')
   it('should parse with')
 })
-
