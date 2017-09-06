@@ -6,15 +6,15 @@ export function parseQuery (query) {
   }
   if (query.orderBy || query.sort) {
     const orderBy = query.orderBy || query.sort
-    if (orderBy.length) {
+    if (Array.isArray(orderBy)) {
       query.orderBy = orderBy.map((clause) => {
         if (typeof clause === 'string') {
           return JSON.parse(clause)
         }
         return clause
       })
-      query.sort = undefined
     }
+    query.sort = undefined
   }
 }
 
