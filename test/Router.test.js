@@ -26,7 +26,7 @@ describe('Router', function () {
 
       it('can be set per method', function (done) {
         const users = [{ id: 1, role: 'admin' }, { id: 2, role: 'dev' }]
-        const stub = sinon.stub(store.getMapper('user'), 'findAll', () => utils.resolve([users[0]]))
+        const stub = sinon.stub(store.getMapper('user'), 'findAll').callsFake(() => utils.resolve([users[0]]))
         const jsdataOpts = {
           with: ['posts', 'posts.comments']
         }
@@ -64,7 +64,7 @@ describe('Router', function () {
 
       it('can be set per method', function (done) {
         const users = [{ id: 1, role: 'admin' }, { id: 2, role: 'dev' }]
-        const stub = sinon.stub(store.getMapper('user'), 'findAll', () => utils.resolve([users[0]]))
+        const stub = sinon.stub(store.getMapper('user'), 'findAll').callsFake(() => utils.resolve([users[0]]))
         const jsdataOpts = {
           with: ['posts', 'posts.comments']
         }
@@ -118,7 +118,7 @@ describe('Router', function () {
   describe('GET /:resource', function (done) {
     it('should handle request', function (done) {
       const users = [{ id: 1, role: 'admin' }, { id: 2, role: 'dev' }]
-      const stub = sinon.stub(store.getMapper('user'), 'findAll', () => utils.resolve([users[0]]))
+      const stub = sinon.stub(store.getMapper('user'), 'findAll').callsFake(() => utils.resolve([users[0]]))
       const jsdataOpts = {
         with: ['posts', 'posts.comments']
       }
@@ -147,7 +147,7 @@ describe('Router', function () {
   describe('GET /:resource/:id', function (done) {
     it('should handle request', function (done) {
       const user = { id: 1, role: 'admin' }
-      const stub = sinon.stub(store.getMapper('user'), 'find', (id) => utils.resolve(user))
+      const stub = sinon.stub(store.getMapper('user'), 'find').callsFake((id) => utils.resolve(user))
       const jsdataOpts = {
         with: ['posts', 'posts.comments']
       }
@@ -174,7 +174,7 @@ describe('Router', function () {
     it('should handle request with a single resource', function (done) {
       const props = { role: 'admin' }
       const user = { id: 1, role: 'admin' }
-      const stub = sinon.stub(store.getMapper('user'), 'create', () => utils.resolve(user))
+      const stub = sinon.stub(store.getMapper('user'), 'create').callsFake(() => utils.resolve(user))
       const jsdataOpts = {
         with: ['posts', 'posts.comments']
       }
@@ -200,7 +200,7 @@ describe('Router', function () {
     it('should handle request with an array of resources', function (done) {
       const props = [{ role: 'admin' }, { role: 'dev' }]
       const users = [{ id: 1, role: 'admin' }, { id: 2, role: 'dev' }]
-      const stub = sinon.stub(store.getMapper('user'), 'createMany', () => utils.resolve(users))
+      const stub = sinon.stub(store.getMapper('user'), 'createMany').callsFake(() => utils.resolve(users))
       const jsdataOpts = {
         with: ['posts', 'posts.comments']
       }
@@ -229,7 +229,7 @@ describe('Router', function () {
       const props = { role: 'admin' }
       const params = { role: 'dev' }
       const users = [{ id: 1, role: 'admin' }, { id: 2, role: 'admin' }]
-      const stub = sinon.stub(store.getMapper('user'), 'updateAll', () => utils.resolve(users))
+      const stub = sinon.stub(store.getMapper('user'), 'updateAll').callsFake(() => utils.resolve(users))
       const jsdataOpts = {
         with: ['posts', 'posts.comments']
       }
@@ -255,7 +255,7 @@ describe('Router', function () {
 
     it('should handle request with an array of resources', function (done) {
       const users = [{ id: 1, role: 'admin' }, { id: 2, role: 'admin' }]
-      const stub = sinon.stub(store.getMapper('user'), 'updateMany', () => utils.resolve(users))
+      const stub = sinon.stub(store.getMapper('user'), 'updateMany').callsFake(() => utils.resolve(users))
       const jsdataOpts = {
         with: ['posts', 'posts.comments']
       }
@@ -283,7 +283,7 @@ describe('Router', function () {
     it('should handle request', function (done) {
       const props = { role: 'admin' }
       const user = { id: 1, role: 'admin' }
-      const stub = sinon.stub(store.getMapper('user'), 'update', (id) => utils.resolve(user))
+      const stub = sinon.stub(store.getMapper('user'), 'update').callsFake((id) => utils.resolve(user))
       const jsdataOpts = {
         with: ['posts', 'posts.comments']
       }
@@ -315,7 +315,7 @@ describe('Router', function () {
       const params = {
         role: 'dev'
       }
-      const stub = sinon.stub(store.getMapper('user'), 'destroyAll', () => utils.resolve())
+      const stub = sinon.stub(store.getMapper('user'), 'destroyAll').callsFake(() => utils.resolve())
       const query = Object.assign({}, params, jsdataOpts)
 
       app.use('/', queryParser)
@@ -337,7 +337,7 @@ describe('Router', function () {
 
   describe('DELETE /:resource/:id', function () {
     it('should handle request', function (done) {
-      const stub = sinon.stub(store.getMapper('user'), 'destroy', () => utils.resolve())
+      const stub = sinon.stub(store.getMapper('user'), 'destroy').callsFake(() => utils.resolve())
       const jsdataOpts = {
         with: ['posts', 'posts.comments']
       }
@@ -361,10 +361,10 @@ describe('Router', function () {
 
   it('should mount a Router to each mapper within a container', function (done) {
     store.defineMapper('todo')
-    const userStub = sinon.stub(store.getMapper('user'), 'findAll', function () {
+    const userStub = sinon.stub(store.getMapper('user'), 'findAll').callsFake(function () {
       return utils.resolve({})
     })
-    const todoStub = sinon.stub(store.getMapper('todo'), 'findAll', function () {
+    const todoStub = sinon.stub(store.getMapper('todo'), 'findAll').callsFake(function () {
       return utils.resolve({})
     })
     JSDataExpress.mount(app, store)

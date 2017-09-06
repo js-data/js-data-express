@@ -91,6 +91,28 @@ describe('queryParser', function () {
     })
   })
 
+  it('should use orderBy directly if orderBy is present as simple string', function () {
+    const query = {
+      orderBy: 'foo'
+    }
+    JSDataExpress.parseQuery(query)
+    assert.deepEqual(query, {
+      orderBy: 'foo',
+      sort: undefined
+    })
+  })
+
+  it('should use orderBy directly if orderBy is present as array of strings', function () {
+    const query = {
+      orderBy: ['foo']
+    }
+    JSDataExpress.parseQuery(query)
+    assert.deepEqual(query, {
+      orderBy: ['foo'],
+      sort: undefined
+    })
+  })
+
   it('should not parse orderBy if orderby is present but is empty', function () {
     const query = {
       orderBy: []

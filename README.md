@@ -13,40 +13,43 @@ Generate Express.js-compatible route middleware for [js-data](http://www.js-data
 To get started, visit __[http://js-data.io](http://www.js-data.io/docs/js-data-express)__.
 
 ```js
-import express from 'express'
-import {mount, queryParser, Router} from 'js-data-express'
-import {Container} from 'js-data'
+import express from 'express';
+import { mount, queryParser, Router } from 'js-data-express';
+import { Container } from 'js-data';
 
-const app = express()
-const store = new Container()
-const UserMapper = store.defineMapper('user')
-const CommentMapper = store.defineMapper('comment')
+const app = express();
+const store = new Container();
+const UserMapper = store.defineMapper('user');
+const CommentMapper = store.defineMapper('comment');
 ```
 
 ```js
 // Mount queryParser and store at "/"
-mount(app, store)
+mount(app, store);
 
 // Mount queryParser and store at "/api"
-mount(app, store, '/api')
+mount(app, store, '/api');
 
 // Mount queryParser at "/"
-app.use(queryParser)
+app.use(queryParser);
 // Mount store at "/"
-app.use(new Router(store).router)
+app.use(new Router(store).router);
 
 // Mount queryParser at "/api"
-app.use('/api' queryParser)
+app.use('/api' queryParser);
 // Mount store at "/api"
-app.use('/api', new Router(store).router)
+app.use('/api', new Router(store).router);
 
-var api = app.route('/api')
-// Mount queryParser at "/api"
-api.use(queryParser)
+// Create an express Router instance
+const api = express().Router();
+// Mount queryParser
+api.use(queryParser);
 // Mount UserMapper at "/api/user"
-api.use('/user', new Router(UserMapper).router)
+api.use('/user', new Router(UserMapper).router);
 // Mount UserMapper at "/api/comment"
-api.use('/comment', new Router(CommentMapper).router)
+api.use('/comment', new Router(CommentMapper).router);
+// Use api Router in an existing express app instance
+app.use('/api', api);
 ```
 
 ## Links
@@ -63,7 +66,7 @@ api.use('/comment', new Router(CommentMapper).router)
 
 The MIT License (MIT)
 
-Copyright (c) 2014-2016 js-data-express project authors
+Copyright (c) 2016-2017 js-data-express project authors
 
 * [LICENSE](https://github.com/js-data/js-data-express/blob/master/LICENSE)
 * [AUTHORS](https://github.com/js-data/js-data-express/blob/master/AUTHORS)

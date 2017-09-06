@@ -1,3 +1,5 @@
+# IDE files
+.idea/
 # Logs
 logs
 *.log
@@ -35,3 +37,6 @@ node_modules
 coverage/
 doc/
 .nyc_output/
+yarn.lock
+*.log
+package-lock.json

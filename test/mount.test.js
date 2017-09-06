@@ -44,7 +44,7 @@ describe('mount', function () {
     const store = new Container()
     const UserMapper = store.defineMapper('user')
 
-    const stub = sinon.stub(UserMapper, 'find', function (id) {
+    const stub = sinon.stub(UserMapper, 'find').callsFake(function (id) {
       return utils.resolve({ id })
     })
 
@@ -67,7 +67,7 @@ describe('mount', function () {
     const store = new Container()
     const UserMapper = store.defineMapper('user')
 
-    const stub = sinon.stub(UserMapper, 'find', function (id) {
+    const stub = sinon.stub(UserMapper, 'find').callsFake(function (id) {
       return utils.resolve({ id })
     })
 
