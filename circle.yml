@@ -4,12 +4,12 @@ general:
       - gh-pages
 machine:
   node:
-    version: 5.7.0
+    version: 6
 dependencies:
   pre:
     - npm i -g npm
     - npm i -g codecov nyc
-    - npm i js-data@^3.0.0-rc.4 express
+    - npm i js-data@^3.0.1 express
 test:
   post:
     - nyc report --reporter=lcov | codecov
