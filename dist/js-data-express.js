@@ -16,15 +16,15 @@ function parseQuery(query) {
   }
   if (query.orderBy || query.sort) {
     var orderBy = query.orderBy || query.sort;
-    if (orderBy.length) {
+    if (Array.isArray(orderBy)) {
       query.orderBy = orderBy.map(function (clause) {
-        if (typeof clause === 'string') {
+        if (typeof clause === 'string' && clause.indexOf('{') >= 0) {
           return JSON.parse(clause);
         }
         return clause;
       });
-      query.sort = undefined;
     }
+    query.sort = undefined;
   }
 }
 
@@ -109,7 +109,7 @@ var DEFAULTS = {
 };
 
 function makeRequestHandler(method, component) {
-  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+  var config = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   config[method] || (config[method] = {});
   var action = config[method].action || DEFAULTS[method].action;
@@ -123,7 +123,7 @@ function makeRequestHandler(method, component) {
 }
 
 function makeResponseHandler(method, component) {
-  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+  var config = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   var methodConfig = config[method] || {};
   var statusCode = methodConfig.statusCode || DEFAULTS[method].statusCode;
@@ -180,7 +180,7 @@ var handlerNoop = function handlerNoop(req, res, next) {
 };
 
 function makeHandler(method, component) {
-  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+  var config = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   config[method] || (config[method] = {});
   var userRequestHandler = jsData.utils.isFunction(config[method].request) ? config[method].request : handlerNoop;
@@ -207,31 +207,42 @@ function makeHandler(method, component) {
 }
 
 /**
- * TODO
+ * A middleware method invoked on all requests
  *
  * @typedef RequestHandler
  * @type function
- * @param {object} req TODO
- * @param {object} res TODO
- * @param {function} next TODO
+ * @param {object} req HTTP(S) Request Object
+ * @param {object} res HTTP(S) Response Object
+ * @param {function} next Express `next()` callback to continue the chain
  */
 
 /**
- * TODO
+ * A method that handles all responses
  *
  * @typedef ResponseHandler
  * @type function
- * @param {object} req TODO
- * @param {object} res TODO
- * @param {function} next TODO
+ * @param {object} req HTTP(S) Request Object
+ * @param {object} res HTTP(S) Response Object
+ * @param {function} next Express `next()` callback to continue the chain
  */
 
 /**
+ * Custom defined method that retrieves data/results for an endpoint
+ *
  * @typedef ActionHandler
  * @type function
  * @param {object} component Instance of `Mapper`, `Container`, `SimpleStore`,
  * or `DataStore`.
- * @param {object} req TODO
+ * @param {object} req HTTP(S) Request Object
+ *
+ * @example <caption>A custom action</caption>
+ * (component, req) => {
+ *    return new Promise((resolve, reject) => {
+ *      // ..some logic
+ *      return resolve(results)
+ *     })
+ * }
+ *
  * @returns {Promise} Promise that resolves with the result.
  */
 
@@ -242,134 +253,123 @@ function makeHandler(method, component) {
  * or `DataStore`.
  * @param {object} result The result of the endpoint's {@link ActionHandler}.
  * @param {object} opts Configuration options.
- * @returns {*} The serialized result.
+ * @returns {object|array|undefined} The serialized result.
  */
 
 /**
- * TODO
+ * create action configs
  *
  * @typedef CreateConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * createMany action configs
  *
  * @typedef CreateManyConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * destroy action configs
  *
  * @typedef DestroyConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * destroyAll action configs
  *
  * @typedef DestroyAllConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * find action configs
  *
  * @typedef FindConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * findAll action configs
  *
  * @typedef FindAllConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * update action configs
  *
  * @typedef UpdateConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * UpdateAllConfig action configs
  *
  * @typedef UpdateAllConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * updateMany action configs
  *
  * @typedef UpdateManyConfig
  * @type object
- * @property {ActionHandler} action TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {number} statusCode TODO
- * @property {Serializer|boolean} toJSON TODO
+ * @property {ActionHandler} [action] Custom action to retrieve data results
+ * @property {number} [statusCode] The status code to return with the response
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
  */
 
 /**
- * TODO
+ * Define endpoint path with custom logic
+ *
+ * @typedef Endpoint
+ * @type function
+ * @param {Object} mapper Component Mapper object
+ */
+
+/**
+ * Configuration options for endpoints, actions, & request/response
  *
  * @typedef Config
  * @type object
- * @property {CreateConfig} [create] TODO
- * @property {CreateManyConfig} [createMany] TODO
- * @property {DestroyConfig} [destroy] TODO
- * @property {DestroyAllConfig} [destroyAll] TODO
- * @property {FindConfig} [find] TODO
- * @property {FindAllConfig} [findAll] TODO
- * @property {RequestHandler} request TODO
- * @property {ResponseHandler} response TODO
- * @property {Serializer|boolean} [toJSON] TODO
- * @property {UpdateConfig} [update] TODO
- * @property {UpdateAllConfig} [updateAll] TODO
- * @property {UpdateManyConfig} [updateMany] TODO
+ * @property {Endpoint} [getEndpoint] Define endpoints with custom method
+ * @property {CreateConfig} [create] create action configs
+ * @property {CreateManyConfig} [createMany] createMany action configs
+ * @property {DestroyConfig} [destroy] destroy action configs
+ * @property {DestroyAllConfig} [destroyAll] destroyAll action configs
+ * @property {FindConfig} [find] find action configs
+ * @property {FindAllConfig} [findAll] findAll action configs
+ * @property {Serializer|boolean} [toJSON] Define custom toJSON method for response results
+ * @property {UpdateConfig} [update] update action configs
+ * @property {UpdateAllConfig} [updateAll] updateAll action configs
+ * @property {UpdateManyConfig} [updateMany] updateMany action configs
  */
 
 /**
@@ -381,7 +381,7 @@ function makeHandler(method, component) {
  *
  */
 function Router(component) {
-  var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
+  var config = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 
   if (!(component instanceof jsData.Mapper) && !(component instanceof jsData.Container)) {
     throw new Error('You must provide an instance of JSData.Container, JSData.DataStore, or JSData.Mapper!');
@@ -407,44 +407,40 @@ function Router(component) {
       router.use(endpoint, new Router(mapper, config).router);
     });
   } else if (component instanceof jsData.Mapper) {
-    (function () {
-      var createManyHandler = makeHandler('createMany', component, config);
-      var createHandler = makeHandler('create', component, config);
-      var updateManyHandler = makeHandler('updateMany', component, config);
-      var updateAllHandler = makeHandler('updateAll', component, config);
+    var createManyHandler = makeHandler('createMany', component, config);
+    var createHandler = makeHandler('create', component, config);
+    var updateManyHandler = makeHandler('updateMany', component, config);
+    var updateAllHandler = makeHandler('updateAll', component, config);
 
-      router.route('/')
-      // GET /:resource
-      .get(makeHandler('findAll', component, config))
-      // POST /:resource
-      .post(function (req, res, next) {
-        if (jsData.utils.isArray(req.body)) {
-          createManyHandler(req, res, next);
-        } else {
-          createHandler(req, res, next);
-        }
-      })
-      // PUT /:resource
-      .put(function (req, res, next) {
-        if (jsData.utils.isArray(req.body)) {
-          updateManyHandler(req, res, next);
-        } else {
-          updateAllHandler(req, res, next);
-        }
-      })
-      // DELETE /:resource
-      .delete(makeHandler('destroyAll', component, config));
+    router.route('/')
+    // GET /:resource
+    .get(makeHandler('findAll', component, config))
+    // POST /:resource
+    .post(function (req, res, next) {
+      if (jsData.utils.isArray(req.body)) {
+        createManyHandler(req, res, next);
+      } else {
+        createHandler(req, res, next);
+      }
+    })
+    // PUT /:resource
+    .put(function (req, res, next) {
+      if (jsData.utils.isArray(req.body)) {
+        updateManyHandler(req, res, next);
+      } else {
+        updateAllHandler(req, res, next);
+      }
+    })
+    // DELETE /:resource
+    .delete(makeHandler('destroyAll', component, config));
 
-      router.route('/:id')
-      // GET /:resource/:id
-      .get(makeHandler('find', component, config))
-      // PUT /:resource/:id
-      .put(makeHandler('update', component, config))
-      // DELETE /:resource/:id
-      .delete(makeHandler('destroy', component, config));
-    })();
-  } else {
-    throw new Error('Unrecognized component!');
+    router.route('/:id')
+    // GET /:resource/:id
+    .get(makeHandler('find', component, config))
+    // PUT /:resource/:id
+    .put(makeHandler('update', component, config))
+    // DELETE /:resource/:id
+    .delete(makeHandler('destroy', component, config));
   }
 }
 
@@ -477,7 +473,7 @@ jsData.Component.extend({
  * @param {Config|string} [config] Configuration options.
  */
 function mount(app, store) {
-  var config = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+  var config = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 
   if (!(store instanceof jsData.Container)) {
     throw new Error('You must provide an instance of JSData.Container or JSData.DataStore!');
@@ -514,7 +510,7 @@ function mount(app, store) {
  * otherwise `false` if the current version is not beta.
  */
 var version = {
-  full: '1.0.0-rc.1',
+  full: '1.0.0',
   major: 1,
   minor: 0,
   patch: 0
