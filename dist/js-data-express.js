@@ -16,6 +16,14 @@ function parseQuery(query) {
   }
   if (query.orderBy || query.sort) {
     var orderBy = query.orderBy || query.sort;
+    if (orderBy && typeof orderBy === 'string' && orderBy[0] === '[') {
+      try {
+        orderBy = JSON.parse(orderBy);
+      } catch (err) {
+        console.error('orderBy querystring parameter is not a well-formatted array!');
+        throw err;
+      }
+    }
     if (Array.isArray(orderBy)) {
       query.orderBy = orderBy.map(function (clause) {
         if (typeof clause === 'string' && clause.indexOf('{') >= 0) {
@@ -510,10 +518,10 @@ function mount(app, store) {
  * otherwise `false` if the current version is not beta.
  */
 var version = {
-  full: '1.0.0',
+  full: '1.0.1',
   major: 1,
   minor: 0,
-  patch: 0
+  patch: 1
 };
 
 /**
