@@ -1,7 +1,7 @@
 {
   "name": "js-data-express",
   "description": "Generate Express.js-compatible route middleware for JSData models.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "homepage": "https://github.com/js-data/js-data-express",
   "repository": {
     "type": "git",
