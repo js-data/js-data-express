@@ -155,6 +155,26 @@ describe('queryParser', function () {
     assert.deepEqual(query, query)
   })
 
+  it('should parse sort if sort is an array', function () {
+    const query = {
+      orderBy: '["score","ASC"]'
+    }
+    JSDataExpress.parseQuery(query)
+    assert.deepEqual(query, {
+      orderBy: ['score', 'ASC'],
+      sort: undefined
+    })
+  })
+
+  it('should throw error on sort param that is not a valid array', function () {
+    const query = {
+      orderBy: '["score","ASC"'
+    }
+    assert.throws(function () {
+      JSDataExpress.parseQuery(query)
+    }, Error)
+  })
+
   it('calls next with the error received if sort fails to parse as JSON', function () {
     const query = {
       sort: ['{"foo":"bar"}e']

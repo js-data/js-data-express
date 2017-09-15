@@ -1,3 +1,11 @@
+#### 1.0.1 - 15 September 2017
+
+##### Bug fixes
+- #27 - Some cases of orderBy are broken after PR #25
+
+##### Other
+- Upgraded dependencies
+
 #### 1.0.0 - 06 September 2017
 
 Stable 1.0.0 release
